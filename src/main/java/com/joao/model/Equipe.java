@@ -12,9 +12,9 @@ import java.util.Date;
 import java.util.List;
 
 @Entity
-@Setter
 @Getter
-public class Cliente {
+@Setter
+public class Equipe {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -24,25 +24,19 @@ public class Cliente {
     @NotNull
     @Length(max=200)
     @Column(length = 200, nullable = false)
-    private String nome;
+    private String setor;
 
     @NotBlank
     @NotNull
-    @Length(max=300)
-    @Column(length = 300, nullable = false)
-    private String endereco;
+    @Length(max=200)
+    @Column(length = 200, nullable = false)
+    private String descricao;
 
-    @JsonIgnore
     private Date dataCriacao;
 
     @JsonIgnore
-    @OneToMany(mappedBy = "cliente", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Projeto> projetos;
+    @OneToMany(mappedBy = "equipe", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Funcionario> funcionarios;
 
-    public Cliente(Long id, String nome, String endereco, List<Projeto> projetos) {
-        this.id = id;
-        this.nome = nome;
-        this.endereco = endereco;
-        this.projetos = projetos;
-    }
 }
+
