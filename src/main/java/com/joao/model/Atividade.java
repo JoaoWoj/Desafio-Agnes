@@ -1,9 +1,11 @@
 package com.joao.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.joao.model.DTO.FuncionarioDTO;
+import com.joao.model.DTO.ProjetoDTO;
 import com.joao.model.enumerators.StatusEnum;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 import org.hibernate.validator.constraints.Length;
 
 import javax.persistence.*;
@@ -14,13 +16,14 @@ import java.util.Date;
 @Entity
 @Getter
 @Setter
+@AllArgsConstructor
+@NoArgsConstructor
 public class Atividade {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotBlank
     @NotNull
     @Length(max=500)
     @Column(length = 500, nullable = false)
@@ -29,7 +32,6 @@ public class Atividade {
     @JsonIgnore
     private Date dataCriacaoAtividade;
 
-    @NotBlank
     @NotNull
     @Column(name = "data_inicio_atividade")
     private Date dataInicioAtividade;
@@ -40,19 +42,22 @@ public class Atividade {
     @Enumerated(EnumType.STRING)
     private StatusEnum status;
 
+    @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "responsavel_id")
     private Funcionario responsavel;
 
+    @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "projeto_id")
     private Projeto projeto;
 
-    public Atividade(Long id, String descricao, StatusEnum status, Funcionario responsavel, Projeto projeto) {
-        this.id = id;
-        this.descricao = descricao;
-        this.status = status;
-        this.responsavel = responsavel;
-        this.projeto = projeto;
-    }
+    @Transient
+    @JsonProperty("responsavel")
+    private FuncionarioDTO funcionarioDTO;
+
+    @Transient
+    @JsonProperty("projeto")
+    private ProjetoDTO projetoDTO;
+
 }

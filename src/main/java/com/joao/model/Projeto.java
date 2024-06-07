@@ -1,8 +1,10 @@
 package com.joao.model;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import lombok.Getter;
-import lombok.Setter;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.joao.model.DTO.ClienteDTO;
+import lombok.*;
 import org.hibernate.validator.constraints.Length;
 
 import javax.persistence.*;
@@ -14,6 +16,8 @@ import java.util.List;
 @Entity
 @Getter
 @Setter
+@AllArgsConstructor
+@NoArgsConstructor
 public class Projeto {
 
     @Id
@@ -35,18 +39,16 @@ public class Projeto {
     @JsonIgnore
     private Date dataCriacao;
 
+    @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "cliente_id")
     private Cliente cliente;
 
+    @Transient
+    @JsonProperty("cliente")
+    private ClienteDTO clienteDTO;
+
     @OneToMany(mappedBy = "projeto", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Atividade> atividades;
 
-    public Projeto(Long id, String nome, String descricao, Cliente cliente, List<Atividade> atividades) {
-        this.id = id;
-        this.nome = nome;
-        this.descricao = descricao;
-        this.cliente = cliente;
-        this.atividades = atividades;
-    }
 }

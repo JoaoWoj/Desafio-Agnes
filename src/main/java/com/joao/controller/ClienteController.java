@@ -11,7 +11,6 @@ import java.util.List;
 
 import static org.springframework.http.HttpStatus.CREATED;
 
-@Validated
 @RestController
 @RequestMapping("/api/cliente")
 public class ClienteController {

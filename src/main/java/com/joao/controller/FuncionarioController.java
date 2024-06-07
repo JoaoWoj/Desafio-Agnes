@@ -51,8 +51,8 @@ public class FuncionarioController {
         return funcionarioService.delete(id);
     }
 
-    @PatchMapping("/{id}")
-    public ResponseEntity<?> changeEquipe(@PathVariable Long id, @RequestBody Long equipeId) {
+    @PatchMapping("/{id}/equipe/{equipeId}")
+    public ResponseEntity<?> changeEquipe(@PathVariable Long id, @PathVariable Long equipeId) {
         return funcionarioService.changeEquipe(id, equipeId);
     }
     

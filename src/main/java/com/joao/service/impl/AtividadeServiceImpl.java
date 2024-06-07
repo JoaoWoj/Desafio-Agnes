@@ -1,9 +1,8 @@
 package com.joao.service.impl;
 
-import com.joao.model.Atividade;
-import com.joao.model.Cliente;
-import com.joao.model.Funcionario;
-import com.joao.model.Projeto;
+import com.joao.model.*;
+import com.joao.model.DTO.FuncionarioDTO;
+import com.joao.model.DTO.ProjetoDTO;
 import com.joao.model.enumerators.StatusEnum;
 import com.joao.repository.AtividadeRepository;
 import com.joao.service.AtividadeService;
@@ -32,19 +31,53 @@ public class AtividadeServiceImpl implements AtividadeService {
 
     @Override
     public List<Atividade> findAll() {
-        return repository.findAll();
+        List<Atividade> listAtividades = repository.findAll();
+        listAtividades.forEach(item ->{
+            Funcionario funcionario = item.getResponsavel();
+            if(funcionario != null) {
+                item.setFuncionarioDTO(new FuncionarioDTO(funcionario.getId(), funcionario.getNome(), funcionario.getFuncao()));
+            }
+            Projeto projeto = item.getProjeto();
+            if(projeto != null) {
+                item.setProjetoDTO(new ProjetoDTO(projeto.getId(), projeto.getNome(), projeto.getDescricao()));
+            }
+        });
+        return listAtividades;
     }
 
     @Override
     public Optional<Atividade> findById(Long id) {
-        return repository.findById(id);
+        Optional<Atividade> atividadeOptional = repository.findById(id);
+        if(!atividadeOptional.isEmpty() && atividadeOptional.isPresent()){
+            Funcionario funcionario = atividadeOptional.get().getResponsavel();
+            if(funcionario != null) {
+                atividadeOptional.get().setFuncionarioDTO(new FuncionarioDTO(funcionario.getId(), funcionario.getNome(), funcionario.getFuncao()));
+            }
+            Projeto projeto = atividadeOptional.get().getProjeto();
+
+            if(projeto != null) {
+                atividadeOptional.get().setProjetoDTO(new ProjetoDTO(projeto.getId(), projeto.getNome(), projeto.getDescricao()));
+            }
+        }
+        return atividadeOptional;
     }
 
     @Override
     public ResponseEntity<?> findByResponsavel(Long id) {
-        Optional<Funcionario> funcionario = funcionarioService.findById(id);
-        if(!funcionario.isEmpty() && funcionario.isPresent()){
-            return ResponseEntity.ok().body(repository.findByResponsavel(funcionario.get()));
+        Optional<Funcionario> responsavel = funcionarioService.findById(id);
+        if(!responsavel.isEmpty() && responsavel.isPresent()){
+            List<Atividade> listAtividades = repository.findByResponsavel(responsavel.get());
+            listAtividades.forEach(item ->{
+                Funcionario funcionario = item.getResponsavel();
+                if(funcionario != null) {
+                    item.setFuncionarioDTO(new FuncionarioDTO(funcionario.getId(), funcionario.getNome(), funcionario.getFuncao()));
+                }
+                Projeto projeto = item.getProjeto();
+                if(projeto != null) {
+                    item.setProjetoDTO(new ProjetoDTO(projeto.getId(), projeto.getNome(), projeto.getDescricao()));
+                }
+            });
+            return ResponseEntity.ok().body(listAtividades);
         }
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Funcionário não encontrado!");
     }
@@ -60,9 +93,20 @@ public class AtividadeServiceImpl implements AtividadeService {
 
     @Override
     public ResponseEntity<?> findByProjeto(Long id) {
-        Optional<Projeto> projeto = projetoService.findById(id);
-        if(!projeto.isEmpty() && projeto.isPresent()){
-            return ResponseEntity.ok().body(repository.findByProjeto(projeto.get()));
+        Optional<Projeto> loadedProjeto = projetoService.findById(id);
+        if(!loadedProjeto.isEmpty() && loadedProjeto.isPresent()){
+            List<Atividade> listAtividades = repository.findByProjeto(loadedProjeto.get());
+            listAtividades.forEach(item ->{
+                Funcionario funcionario = item.getResponsavel();
+                if(funcionario != null) {
+                    item.setFuncionarioDTO(new FuncionarioDTO(funcionario.getId(), funcionario.getNome(), funcionario.getFuncao()));
+                }
+                Projeto projeto = item.getProjeto();
+                if(projeto != null) {
+                item.setProjetoDTO(new ProjetoDTO(projeto.getId(), projeto.getNome(), projeto.getDescricao()));
+                }
+            });
+            return ResponseEntity.ok().body(listAtividades);
         }
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Projeto não encontrado!");
     }
@@ -78,18 +122,26 @@ public class AtividadeServiceImpl implements AtividadeService {
 
     @Override
     public ResponseEntity<?> create(Atividade atividade) {
-        if(atividade.getProjeto() != null && atividade.getResponsavel() != null){
-            Optional<Projeto> projeto = projetoService.findById(atividade.getProjeto().getId());
-            Optional<Funcionario> funcionario = funcionarioService.findById(atividade.getProjeto().getId());
-            if (projeto.isEmpty() || !projeto.isPresent()) {
+        if(atividade.getProjetoDTO() != null && atividade.getFuncionarioDTO() != null){
+            Optional<Projeto> loadedProjeto = projetoService.findById(atividade.getProjetoDTO().getId());
+            Optional<Funcionario> loadedResponsavel = funcionarioService.findById(atividade.getFuncionarioDTO().getId());
+            if (loadedProjeto.isEmpty() || !loadedProjeto.isPresent()) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Projeto não encontrado!");
-            } else if (funcionario.isEmpty() || !funcionario.isPresent()) {
+            } else if (loadedResponsavel.isEmpty() || !loadedResponsavel.isPresent()) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Responsável não encontrado!");
             } else {
                 if (atividade.getDataCriacaoAtividade() == null) {
                     atividade.setDataCriacaoAtividade(new Date());
                 }
-                return ResponseEntity.ok().body(repository.save(atividade));
+                atividade.setResponsavel(loadedResponsavel.get());
+                atividade.setProjeto(loadedProjeto.get());
+                Atividade atividadeSalva = repository.save(atividade);
+                Funcionario funcionario = atividadeSalva.getResponsavel();
+                atividadeSalva.setFuncionarioDTO(new FuncionarioDTO(funcionario.getId(), funcionario.getNome(), funcionario.getFuncao()));
+                Projeto projeto = atividadeSalva.getProjeto();
+                atividadeSalva.setProjetoDTO(new ProjetoDTO(projeto.getId(), projeto.getNome(), projeto.getDescricao()));
+
+                return ResponseEntity.ok().body(atividadeSalva);
             }
         }
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body("É nescessário informar o Projeto e o Responsável!");
@@ -115,7 +167,17 @@ public class AtividadeServiceImpl implements AtividadeService {
                     recordFound.setResponsavel(funcionario.get());
                 }
             }
-            return Optional.of(repository.save(recordFound));
+            Atividade retorno = repository.save(recordFound);
+            Funcionario funcionario = retorno.getResponsavel();
+            if(funcionario != null) {
+                retorno.setFuncionarioDTO(new FuncionarioDTO(funcionario.getId(), funcionario.getNome(), funcionario.getFuncao()));
+            }
+            Projeto projeto = retorno.getProjeto();
+            if(projeto != null) {
+                retorno.setProjetoDTO(new ProjetoDTO(projeto.getId(), projeto.getNome(), projeto.getDescricao()));
+            }
+
+            return Optional.of(retorno);
         }
         return Optional.empty();
     }
@@ -131,11 +193,10 @@ public class AtividadeServiceImpl implements AtividadeService {
 
     @Override
     public boolean changeStatus(Long id, String status) {
+        StatusEnum statusEnum = StatusEnum.fromValue(status);
         return repository.findById(id).map(item ->{
-            if(status.equals(StatusEnum.CONCLUIDO)){
-                item.setDataFimAtividade(new Date());
-            }
-            item.setStatus(StatusEnum.valueOf(status));
+            item.setStatus(statusEnum);
+            repository.save(item);
             return true;
         }).orElse(false);
     }
