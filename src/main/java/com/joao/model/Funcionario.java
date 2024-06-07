@@ -1,9 +1,8 @@
 package com.joao.model;
 
-import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.joao.model.DTO.ClienteDTO;
+import com.joao.model.DTO.EquipeDTO;
 import lombok.*;
 import org.hibernate.validator.constraints.Length;
 
@@ -18,7 +17,7 @@ import java.util.List;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class Projeto {
+public class Funcionario {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -32,23 +31,24 @@ public class Projeto {
 
     @NotBlank
     @NotNull
-    @Length(max=500)
-    @Column(length = 500, nullable = false)
-    private String descricao;
-
-    @JsonIgnore
-    private Date dataCriacao;
+    @Length(max=100)
+    @Column(length = 100, nullable = false)
+    private String funcao;
 
     @JsonIgnore
     @ManyToOne
-    @JoinColumn(name = "cliente_id")
-    private Cliente cliente;
+    @JoinColumn(name = "equipe_id")
+    private Equipe equipe;
+
+    @JsonIgnore
+    private Date dataCadastro;
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "responsavel", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Atividade> atividades;
 
     @Transient
-    @JsonProperty("cliente")
-    private ClienteDTO clienteDTO;
-
-    @OneToMany(mappedBy = "projeto", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Atividade> atividades;
+    @JsonProperty("equipe")
+    private EquipeDTO equipeDTO;
 
 }
