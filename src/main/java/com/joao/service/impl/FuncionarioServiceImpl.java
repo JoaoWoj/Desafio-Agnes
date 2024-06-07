@@ -1,7 +1,12 @@
 package com.joao.service.impl;
 
+import com.joao.model.Cliente;
+import com.joao.model.DTO.ClienteDTO;
+import com.joao.model.DTO.EquipeDTO;
+import com.joao.model.DTO.FuncionarioDTO;
 import com.joao.model.Funcionario;
 import com.joao.model.Equipe;
+import com.joao.model.Projeto;
 import com.joao.repository.FuncionarioRepository;
 import com.joao.service.AtividadeService;
 import com.joao.service.FuncionarioService;
@@ -26,19 +31,33 @@ public class FuncionarioServiceImpl implements FuncionarioService {
 
     @Override
     public List<Funcionario> findAll() {
-        return repository.findAll();
+        List<Funcionario> listFuncionarios = repository.findAll();
+        listFuncionarios.forEach(item ->{
+            Equipe equipe = item.getEquipe();
+            item.setEquipeDTO(new EquipeDTO(equipe.getId(), equipe.getSetor(), equipe.getDescricao()));
+        });
+        return listFuncionarios;
     }
 
     @Override
     public Optional<Funcionario> findById(Long id) {
-        return repository.findById(id);
+        Optional<Funcionario> funcionarioOptional = repository.findById(id);
+        if(!funcionarioOptional.isEmpty() && funcionarioOptional.isPresent()) {
+            Equipe equipe = funcionarioOptional.get().getEquipe();
+            funcionarioOptional.get().setEquipeDTO(new EquipeDTO(equipe.getId(), equipe.getSetor(), equipe.getDescricao()));
+        }
+        return funcionarioOptional;
     }
 
     @Override
     public ResponseEntity<?> findByEquipe(Long id) {
         Optional<Equipe> equipe = equipeService.findById(id);
         if(!equipe.isEmpty() && equipe.isPresent()){
-            return ResponseEntity.ok().body(repository.findByEquipe(equipe.get()));
+            List<Funcionario> listFuncionario = repository.findByEquipe(equipe.get());
+            listFuncionario.forEach(item ->{
+                item.setEquipeDTO(new EquipeDTO(equipe.get().getId(), equipe.get().getSetor(), equipe.get().getDescricao()));
+            });
+            return ResponseEntity.ok().body(listFuncionario);
         }
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Equipe não encontrado!");
     }
@@ -54,13 +73,17 @@ public class FuncionarioServiceImpl implements FuncionarioService {
 
     @Override
     public ResponseEntity<?> create(Funcionario funcionario) {
-        if(funcionario.getEquipe() != null) {
-            Optional<Equipe> equipe = equipeService.findById(funcionario.getEquipe().getId());
+        if(funcionario.getEquipeDTO() != null) {
+            Optional<Equipe> equipe = equipeService.findById(funcionario.getEquipeDTO().getId());
             if (!equipe.isEmpty() && equipe.isPresent()) {
                 if (funcionario.getDataCadastro() == null) {
                     funcionario.setDataCadastro(new Date());
                 }
-                return ResponseEntity.ok().body(repository.save(funcionario));
+                funcionario.setEquipe(equipe.get());
+                Funcionario funcionarioSalvo = repository.save(funcionario);
+                EquipeDTO equipecarregada = new EquipeDTO(equipe.get().getId(), equipe.get().getSetor(), equipe.get().getDescricao());
+                funcionarioSalvo.setEquipeDTO(equipecarregada);
+                return ResponseEntity.ok().body(funcionarioSalvo);
             }
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Equipe não encontrada!");
         }
@@ -74,13 +97,15 @@ public class FuncionarioServiceImpl implements FuncionarioService {
             Funcionario recordFound = item.get();
             recordFound.setNome(funcionario.getNome());
             recordFound.setFuncao(funcionario.getFuncao());
-            if(funcionario.getEquipe() != null) {
-                Optional<Equipe> equipe = equipeService.findById(funcionario.getEquipe().getId());
+            if(funcionario.getEquipeDTO() != null) {
+                Optional<Equipe> equipe = equipeService.findById(funcionario.getEquipeDTO().getId());
                 if (!equipe.isEmpty() && equipe.isPresent()){
                     recordFound.setEquipe(equipe.get());
                 }
             }
-            return Optional.of(repository.save(recordFound));
+            Funcionario retorno = repository.save(recordFound);
+            retorno.setEquipeDTO(new EquipeDTO(recordFound.getEquipe().getId(), recordFound.getEquipe().getSetor(),recordFound.getEquipe().getDescricao()));
+            return Optional.of(retorno);
         }
         return Optional.empty();
     }
@@ -100,7 +125,8 @@ public class FuncionarioServiceImpl implements FuncionarioService {
         if(!equipe.isEmpty() && equipe.isPresent()){
             return repository.findById(id).map(item ->{
                 item.setEquipe(equipe.get());
-                return ResponseEntity.ok().body("Excluído com sucesso!");
+                repository.save(item);
+                return ResponseEntity.ok().body("Equipe alterada com sucesso!");
             }).orElse(ResponseEntity.notFound().build());
         }
         return ResponseEntity.status(HttpStatus.NOT_FOUND)

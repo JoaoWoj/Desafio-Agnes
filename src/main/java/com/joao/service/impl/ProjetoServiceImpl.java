@@ -2,6 +2,7 @@ package com.joao.service.impl;
 
 import com.joao.model.Atividade;
 import com.joao.model.Cliente;
+import com.joao.model.DTO.ClienteDTO;
 import com.joao.model.Projeto;
 import com.joao.repository.AtividadeRepository;
 import com.joao.repository.ClienteRepository;
@@ -32,12 +33,22 @@ public class ProjetoServiceImpl implements ProjetoService {
 
     @Override
     public List<Projeto> findAll() {
-        return repository.findAll();
+        List<Projeto> listProjetos = repository.findAll();
+        listProjetos.forEach(item -> {
+            Cliente cliente = item.getCliente();
+            item.setClienteDTO(new ClienteDTO(cliente.getId(), cliente.getNome(), cliente.getEndereco()));
+        });
+        return listProjetos;
     }
 
     @Override
     public Optional<Projeto> findById(Long id) {
-        return repository.findById(id);
+        Optional<Projeto> projetoOptional = repository.findById(id);
+        if(!projetoOptional.isEmpty() && projetoOptional.isPresent()) {
+            Cliente cliente = projetoOptional.get().getCliente();
+            projetoOptional.get().setClienteDTO(new ClienteDTO(cliente.getId(), cliente.getNome(), cliente.getEndereco()));
+        }
+        return projetoOptional;
     }
 
     @Override
@@ -51,13 +62,17 @@ public class ProjetoServiceImpl implements ProjetoService {
 
     @Override
     public ResponseEntity<?> create(Projeto projeto) {
-        if(projeto.getCliente() != null) {
-            Optional<Cliente> cliente = clienteRepository.findById(projeto.getCliente().getId());
+        if(projeto.getClienteDTO() != null) {
+            Optional<Cliente> cliente = clienteRepository.findById(projeto.getClienteDTO().getId());
             if (!cliente.isEmpty() && cliente.isPresent()) {
                 if (projeto.getDataCriacao() == null) {
                     projeto.setDataCriacao(new Date());
                 }
-                return ResponseEntity.ok().body(repository.save(projeto));
+                projeto.setCliente(cliente.get());
+                Projeto projetoSalvo = repository.save(projeto);
+                ClienteDTO clienteCarregado = new ClienteDTO(cliente.get().getId(), cliente.get().getNome(), cliente.get().getEndereco());
+                projetoSalvo.setClienteDTO(clienteCarregado);
+                return ResponseEntity.ok().body(projetoSalvo);
             }
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Cliente não encontrado!");
         }
@@ -77,7 +92,9 @@ public class ProjetoServiceImpl implements ProjetoService {
                     recordFound.setCliente(cliente.get());
                 }
             }
-            return Optional.of(repository.save(recordFound));
+            Projeto retorno = repository.save(recordFound);
+            retorno.setClienteDTO(new ClienteDTO(recordFound.getCliente().getId(), recordFound.getCliente().getNome(),recordFound.getCliente().getEndereco()));
+            return Optional.of(retorno);
         }
         return Optional.empty();
     }

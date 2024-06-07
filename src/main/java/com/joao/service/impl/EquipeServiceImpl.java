@@ -1,6 +1,10 @@
 package com.joao.service.impl;
 
+import com.joao.model.Cliente;
+import com.joao.model.DTO.ClienteDTO;
+import com.joao.model.DTO.FuncionarioDTO;
 import com.joao.model.Equipe;
+import com.joao.model.Funcionario;
 import com.joao.repository.EquipeRepository;
 import com.joao.service.FuncionarioService;
 import com.joao.service.EquipeService;
@@ -9,6 +13,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -20,12 +25,30 @@ public class EquipeServiceImpl implements EquipeService {
 
     @Override
     public List<Equipe> findAll() {
-        return repository.findAll();
+        List<Equipe> listEquipes = repository.findAll();
+        listEquipes.forEach(equipe ->{
+            List<FuncionarioDTO> dtoList = new ArrayList<>();
+            equipe.getFuncionarios().forEach(func -> {
+                dtoList.add(new FuncionarioDTO(func.getId(), func.getNome(), func.getFuncao()));
+            });
+            equipe.setFuncionariosDTO(dtoList);
+        });
+        return listEquipes;
     }
 
     @Override
     public Optional<Equipe> findById(Long id) {
-        return repository.findById(id);
+        Optional<Equipe> equipeOptional = repository.findById(id);
+        if(!equipeOptional.isEmpty() && equipeOptional.isPresent()) {
+            if(!equipeOptional.get().getFuncionarios().isEmpty()){
+                List<FuncionarioDTO> dtoList = new ArrayList<>();
+                equipeOptional.get().getFuncionarios().forEach(func -> {
+                    dtoList.add(new FuncionarioDTO(func.getId(), func.getNome(), func.getFuncao()));
+                });
+                equipeOptional.get().setFuncionariosDTO(dtoList);
+            }
+            }
+        return equipeOptional;
     }
 
     @Override
@@ -43,7 +66,15 @@ public class EquipeServiceImpl implements EquipeService {
             Equipe recordFound = item.get();
             recordFound.setSetor(equipe.getSetor());
             recordFound.setDescricao(equipe.getDescricao());
-            return Optional.of(repository.save(recordFound));
+            Equipe equipeRetorno = repository.save(recordFound);
+            if(!equipeRetorno.getFuncionarios().isEmpty()){
+                List<FuncionarioDTO> dtoList = new ArrayList<>();
+                equipeRetorno.getFuncionarios().forEach(func -> {
+                    dtoList.add(new FuncionarioDTO(func.getId(), func.getNome(), func.getFuncao()));
+                });
+                equipeRetorno.setFuncionariosDTO(dtoList);
+            }
+            return Optional.of(equipeRetorno);
         }
         return Optional.empty();
     }

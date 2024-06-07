@@ -62,10 +62,10 @@ public class AtividadeController {
         }
     }
 
-    @PatchMapping("/{id}")
-    public ResponseEntity<?> changeStatus(@PathVariable Long id, @RequestBody String status) {
+    @PatchMapping("/{id}/status/{status}")
+    public ResponseEntity<?> changeStatus(@PathVariable Long id, @PathVariable String status) {
         if(atividadeService.changeStatus(id, status)) {
-            return ResponseEntity.noContent().build();
+            return ResponseEntity.ok().build();
         } else {
             return ResponseEntity.notFound().build();
         }

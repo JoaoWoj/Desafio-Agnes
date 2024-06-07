@@ -1,8 +1,7 @@
 package com.joao.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 import org.hibernate.validator.constraints.Length;
 
 import javax.persistence.*;
@@ -14,6 +13,9 @@ import java.util.List;
 @Entity
 @Setter
 @Getter
+@EqualsAndHashCode
+@AllArgsConstructor
+@NoArgsConstructor
 public class Cliente {
 
     @Id
@@ -35,13 +37,8 @@ public class Cliente {
     @JsonIgnore
     private Date dataCriacao;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "cliente", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Projeto> projetos;
 
-    public Cliente(Long id, String nome, String endereco, List<Projeto> projetos) {
-        this.id = id;
-        this.nome = nome;
-        this.endereco = endereco;
-        this.projetos = projetos;
-    }
 }
