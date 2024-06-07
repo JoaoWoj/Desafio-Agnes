@@ -6,11 +6,13 @@ import lombok.*;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class ClienteDTO {
+public class FuncionarioDTO {
 
     private Long id;
 
     private String nome;
 
-    private String endereco;
+    private String funcao;
+
+
 }

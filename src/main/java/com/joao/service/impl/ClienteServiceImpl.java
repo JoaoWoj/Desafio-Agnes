@@ -54,7 +54,7 @@ public class ClienteServiceImpl implements ClienteService {
     public boolean delete(Long id) {
         return repository.findById(id)
                 .map(item ->{
-                    if(!item.getProjetos().isEmpty()) {
+                    if(item.getProjetos() != null && !item.getProjetos().isEmpty()) {
                         item.getProjetos().forEach(projeto -> {
                             projetoService.delete(projeto.getId());
                         });

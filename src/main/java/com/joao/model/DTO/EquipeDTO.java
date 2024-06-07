@@ -6,11 +6,10 @@ import lombok.*;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class ClienteDTO {
+public class EquipeDTO {
 
     private Long id;
+    private String setor;
+    private String descricao;
 
-    private String nome;
-
-    private String endereco;
 }

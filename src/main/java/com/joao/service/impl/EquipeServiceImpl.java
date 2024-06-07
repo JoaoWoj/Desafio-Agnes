@@ -27,11 +27,13 @@ public class EquipeServiceImpl implements EquipeService {
     public List<Equipe> findAll() {
         List<Equipe> listEquipes = repository.findAll();
         listEquipes.forEach(equipe ->{
-            List<FuncionarioDTO> dtoList = new ArrayList<>();
-            equipe.getFuncionarios().forEach(func -> {
-                dtoList.add(new FuncionarioDTO(func.getId(), func.getNome(), func.getFuncao()));
-            });
-            equipe.setFuncionariosDTO(dtoList);
+            if(equipe.getFuncionarios() != null && !equipe.getFuncionarios().isEmpty()) {
+                List<FuncionarioDTO> dtoList = new ArrayList<>();
+                equipe.getFuncionarios().forEach(func -> {
+                    dtoList.add(new FuncionarioDTO(func.getId(), func.getNome(), func.getFuncao()));
+                });
+                equipe.setFuncionariosDTO(dtoList);
+            }
         });
         return listEquipes;
     }
@@ -40,7 +42,7 @@ public class EquipeServiceImpl implements EquipeService {
     public Optional<Equipe> findById(Long id) {
         Optional<Equipe> equipeOptional = repository.findById(id);
         if(!equipeOptional.isEmpty() && equipeOptional.isPresent()) {
-            if(!equipeOptional.get().getFuncionarios().isEmpty()){
+            if(equipeOptional.get().getFuncionarios() != null && !equipeOptional.get().getFuncionarios().isEmpty()){
                 List<FuncionarioDTO> dtoList = new ArrayList<>();
                 equipeOptional.get().getFuncionarios().forEach(func -> {
                     dtoList.add(new FuncionarioDTO(func.getId(), func.getNome(), func.getFuncao()));
@@ -67,7 +69,7 @@ public class EquipeServiceImpl implements EquipeService {
             recordFound.setSetor(equipe.getSetor());
             recordFound.setDescricao(equipe.getDescricao());
             Equipe equipeRetorno = repository.save(recordFound);
-            if(!equipeRetorno.getFuncionarios().isEmpty()){
+            if(equipeRetorno.getFuncionarios() != null && !equipeRetorno.getFuncionarios().isEmpty()){
                 List<FuncionarioDTO> dtoList = new ArrayList<>();
                 equipeRetorno.getFuncionarios().forEach(func -> {
                     dtoList.add(new FuncionarioDTO(func.getId(), func.getNome(), func.getFuncao()));
@@ -83,7 +85,7 @@ public class EquipeServiceImpl implements EquipeService {
     public ResponseEntity<?> delete(Long id) {
         return repository.findById(id)
                 .map(item ->{
-                    if(!item.getFuncionarios().isEmpty()){
+                    if(item.getFuncionarios() != null && !item.getFuncionarios().isEmpty()){
                         return ResponseEntity.status(HttpStatus.NOT_FOUND)
                                 .body("Não é possível excluir Equipe, enquanto existem funcionários cadastrados a ele!");
                     }

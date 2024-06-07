@@ -34,9 +34,13 @@ public class AtividadeServiceImpl implements AtividadeService {
         List<Atividade> listAtividades = repository.findAll();
         listAtividades.forEach(item ->{
             Funcionario funcionario = item.getResponsavel();
-            item.setFuncionarioDTO(new FuncionarioDTO(funcionario.getId(), funcionario.getNome(), funcionario.getFuncao()));
+            if(funcionario != null) {
+                item.setFuncionarioDTO(new FuncionarioDTO(funcionario.getId(), funcionario.getNome(), funcionario.getFuncao()));
+            }
             Projeto projeto = item.getProjeto();
-            item.setProjetoDTO(new ProjetoDTO(projeto.getId(), projeto.getNome(), projeto.getDescricao()));
+            if(projeto != null) {
+                item.setProjetoDTO(new ProjetoDTO(projeto.getId(), projeto.getNome(), projeto.getDescricao()));
+            }
         });
         return listAtividades;
     }
@@ -46,9 +50,14 @@ public class AtividadeServiceImpl implements AtividadeService {
         Optional<Atividade> atividadeOptional = repository.findById(id);
         if(!atividadeOptional.isEmpty() && atividadeOptional.isPresent()){
             Funcionario funcionario = atividadeOptional.get().getResponsavel();
-            atividadeOptional.get().setFuncionarioDTO(new FuncionarioDTO(funcionario.getId(), funcionario.getNome(), funcionario.getFuncao()));
+            if(funcionario != null) {
+                atividadeOptional.get().setFuncionarioDTO(new FuncionarioDTO(funcionario.getId(), funcionario.getNome(), funcionario.getFuncao()));
+            }
             Projeto projeto = atividadeOptional.get().getProjeto();
-            atividadeOptional.get().setProjetoDTO(new ProjetoDTO(projeto.getId(), projeto.getNome(), projeto.getDescricao()));
+
+            if(projeto != null) {
+                atividadeOptional.get().setProjetoDTO(new ProjetoDTO(projeto.getId(), projeto.getNome(), projeto.getDescricao()));
+            }
         }
         return atividadeOptional;
     }
@@ -60,9 +69,13 @@ public class AtividadeServiceImpl implements AtividadeService {
             List<Atividade> listAtividades = repository.findByResponsavel(responsavel.get());
             listAtividades.forEach(item ->{
                 Funcionario funcionario = item.getResponsavel();
-                item.setFuncionarioDTO(new FuncionarioDTO(funcionario.getId(), funcionario.getNome(), funcionario.getFuncao()));
+                if(funcionario != null) {
+                    item.setFuncionarioDTO(new FuncionarioDTO(funcionario.getId(), funcionario.getNome(), funcionario.getFuncao()));
+                }
                 Projeto projeto = item.getProjeto();
-                item.setProjetoDTO(new ProjetoDTO(projeto.getId(), projeto.getNome(), projeto.getDescricao()));
+                if(projeto != null) {
+                    item.setProjetoDTO(new ProjetoDTO(projeto.getId(), projeto.getNome(), projeto.getDescricao()));
+                }
             });
             return ResponseEntity.ok().body(listAtividades);
         }
@@ -85,9 +98,13 @@ public class AtividadeServiceImpl implements AtividadeService {
             List<Atividade> listAtividades = repository.findByProjeto(loadedProjeto.get());
             listAtividades.forEach(item ->{
                 Funcionario funcionario = item.getResponsavel();
-                item.setFuncionarioDTO(new FuncionarioDTO(funcionario.getId(), funcionario.getNome(), funcionario.getFuncao()));
+                if(funcionario != null) {
+                    item.setFuncionarioDTO(new FuncionarioDTO(funcionario.getId(), funcionario.getNome(), funcionario.getFuncao()));
+                }
                 Projeto projeto = item.getProjeto();
+                if(projeto != null) {
                 item.setProjetoDTO(new ProjetoDTO(projeto.getId(), projeto.getNome(), projeto.getDescricao()));
+                }
             });
             return ResponseEntity.ok().body(listAtividades);
         }
@@ -152,9 +169,13 @@ public class AtividadeServiceImpl implements AtividadeService {
             }
             Atividade retorno = repository.save(recordFound);
             Funcionario funcionario = retorno.getResponsavel();
-            retorno.setFuncionarioDTO(new FuncionarioDTO(funcionario.getId(), funcionario.getNome(), funcionario.getFuncao()));
+            if(funcionario != null) {
+                retorno.setFuncionarioDTO(new FuncionarioDTO(funcionario.getId(), funcionario.getNome(), funcionario.getFuncao()));
+            }
             Projeto projeto = retorno.getProjeto();
-            retorno.setProjetoDTO(new ProjetoDTO(projeto.getId(), projeto.getNome(), projeto.getDescricao()));
+            if(projeto != null) {
+                retorno.setProjetoDTO(new ProjetoDTO(projeto.getId(), projeto.getNome(), projeto.getDescricao()));
+            }
 
             return Optional.of(retorno);
         }

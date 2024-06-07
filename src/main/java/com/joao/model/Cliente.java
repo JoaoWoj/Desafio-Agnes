@@ -13,7 +13,6 @@ import java.util.List;
 @Entity
 @Setter
 @Getter
-@EqualsAndHashCode
 @AllArgsConstructor
 @NoArgsConstructor
 public class Cliente {

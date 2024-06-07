@@ -34,7 +34,9 @@ public class FuncionarioServiceImpl implements FuncionarioService {
         List<Funcionario> listFuncionarios = repository.findAll();
         listFuncionarios.forEach(item ->{
             Equipe equipe = item.getEquipe();
-            item.setEquipeDTO(new EquipeDTO(equipe.getId(), equipe.getSetor(), equipe.getDescricao()));
+            if(equipe != null) {
+                item.setEquipeDTO(new EquipeDTO(equipe.getId(), equipe.getSetor(), equipe.getDescricao()));
+            }
         });
         return listFuncionarios;
     }
@@ -44,7 +46,9 @@ public class FuncionarioServiceImpl implements FuncionarioService {
         Optional<Funcionario> funcionarioOptional = repository.findById(id);
         if(!funcionarioOptional.isEmpty() && funcionarioOptional.isPresent()) {
             Equipe equipe = funcionarioOptional.get().getEquipe();
-            funcionarioOptional.get().setEquipeDTO(new EquipeDTO(equipe.getId(), equipe.getSetor(), equipe.getDescricao()));
+            if(equipe != null) {
+                funcionarioOptional.get().setEquipeDTO(new EquipeDTO(equipe.getId(), equipe.getSetor(), equipe.getDescricao()));
+            }
         }
         return funcionarioOptional;
     }

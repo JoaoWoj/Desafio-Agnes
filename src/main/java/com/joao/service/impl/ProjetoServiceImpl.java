@@ -36,7 +36,9 @@ public class ProjetoServiceImpl implements ProjetoService {
         List<Projeto> listProjetos = repository.findAll();
         listProjetos.forEach(item -> {
             Cliente cliente = item.getCliente();
-            item.setClienteDTO(new ClienteDTO(cliente.getId(), cliente.getNome(), cliente.getEndereco()));
+            if (cliente != null){
+                item.setClienteDTO(new ClienteDTO(cliente.getId(), cliente.getNome(), cliente.getEndereco()));
+            }
         });
         return listProjetos;
     }
@@ -46,7 +48,9 @@ public class ProjetoServiceImpl implements ProjetoService {
         Optional<Projeto> projetoOptional = repository.findById(id);
         if(!projetoOptional.isEmpty() && projetoOptional.isPresent()) {
             Cliente cliente = projetoOptional.get().getCliente();
-            projetoOptional.get().setClienteDTO(new ClienteDTO(cliente.getId(), cliente.getNome(), cliente.getEndereco()));
+            if (cliente != null) {
+                projetoOptional.get().setClienteDTO(new ClienteDTO(cliente.getId(), cliente.getNome(), cliente.getEndereco()));
+            }
         }
         return projetoOptional;
     }

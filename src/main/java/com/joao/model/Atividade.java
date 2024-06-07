@@ -16,7 +16,6 @@ import java.util.Date;
 @Entity
 @Getter
 @Setter
-@EqualsAndHashCode
 @AllArgsConstructor
 @NoArgsConstructor
 public class Atividade {
