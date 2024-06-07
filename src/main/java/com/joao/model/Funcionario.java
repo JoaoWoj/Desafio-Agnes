@@ -12,9 +12,9 @@ import java.util.Date;
 import java.util.List;
 
 @Entity
-@Setter
 @Getter
-public class Cliente {
+@Setter
+public class Funcionario {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -28,20 +28,17 @@ public class Cliente {
 
     @NotBlank
     @NotNull
-    @Length(max=300)
-    @Column(length = 300, nullable = false)
-    private String endereco;
+    @Length(max=100)
+    @Column(length = 100, nullable = false)
+    private String funcao;
+
+    @ManyToOne
+    @JoinColumn(name = "equipe_id")
+    private Equipe equipe;
 
     @JsonIgnore
-    private Date dataCriacao;
+    private Date dataCadastro;
 
-    @OneToMany(mappedBy = "cliente", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Projeto> projetos;
-
-    public Cliente(Long id, String nome, String endereco, List<Projeto> projetos) {
-        this.id = id;
-        this.nome = nome;
-        this.endereco = endereco;
-        this.projetos = projetos;
-    }
+    @OneToMany(mappedBy = "responsavel", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Atividade> atividades;
 }
