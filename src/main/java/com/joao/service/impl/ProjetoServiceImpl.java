@@ -3,6 +3,8 @@ package com.joao.service.impl;
 import com.joao.model.Atividade;
 import com.joao.model.Cliente;
 import com.joao.model.Projeto;
+import com.joao.repository.AtividadeRepository;
+import com.joao.repository.ClienteRepository;
 import com.joao.repository.ProjetoRepository;
 import com.joao.service.AtividadeService;
 import com.joao.service.ClienteService;
@@ -23,7 +25,10 @@ public class ProjetoServiceImpl implements ProjetoService {
     private ProjetoRepository repository;
 
     @Autowired
-    private ClienteService clienteService;
+    private ClienteRepository clienteRepository;
+
+    @Autowired
+    private AtividadeRepository atividadeRepository;
 
     @Override
     public List<Projeto> findAll() {
@@ -37,7 +42,7 @@ public class ProjetoServiceImpl implements ProjetoService {
 
     @Override
     public ResponseEntity<?> findByCliente(Long id) {
-        Optional<Cliente> cliente = clienteService.findById(id);
+        Optional<Cliente> cliente = clienteRepository.findById(id);
         if(!cliente.isEmpty() && cliente.isPresent()){
             return ResponseEntity.ok().body(repository.findByCliente(cliente.get()));
         }
@@ -47,7 +52,7 @@ public class ProjetoServiceImpl implements ProjetoService {
     @Override
     public ResponseEntity<?> create(Projeto projeto) {
         if(projeto.getCliente() != null) {
-            Optional<Cliente> cliente = clienteService.findById(projeto.getCliente().getId());
+            Optional<Cliente> cliente = clienteRepository.findById(projeto.getCliente().getId());
             if (!cliente.isEmpty() && cliente.isPresent()) {
                 if (projeto.getDataCriacao() == null) {
                     projeto.setDataCriacao(new Date());
@@ -67,7 +72,7 @@ public class ProjetoServiceImpl implements ProjetoService {
             recordFound.setNome(projeto.getNome());
             recordFound.setDescricao(projeto.getDescricao());
             if(projeto.getCliente() != null) {
-                Optional<Cliente> cliente = clienteService.findById(projeto.getCliente().getId());
+                Optional<Cliente> cliente = clienteRepository.findById(projeto.getCliente().getId());
                 if (!cliente.isEmpty() && cliente.isPresent()){
                     recordFound.setCliente(cliente.get());
                 }
@@ -81,6 +86,7 @@ public class ProjetoServiceImpl implements ProjetoService {
     public boolean delete(Long id) {
         return repository.findById(id)
                 .map(item ->{
+                    atividadeRepository.deleteByProjeto(item);
                     repository.deleteById(id);
                     return true;
                 }).orElse(false);

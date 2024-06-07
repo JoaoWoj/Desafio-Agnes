@@ -3,6 +3,7 @@ package com.joao.service.impl;
 import com.joao.model.Cliente;
 import com.joao.repository.ClienteRepository;
 import com.joao.service.ClienteService;
+import com.joao.service.ProjetoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -14,7 +15,10 @@ import java.util.Optional;
 public class ClienteServiceImpl implements ClienteService {
 
     @Autowired
-    ClienteRepository repository;
+    private ClienteRepository repository;
+
+    @Autowired
+    private ProjetoService projetoService;
 
     @Override
     public List<Cliente> findAll() {
@@ -50,6 +54,11 @@ public class ClienteServiceImpl implements ClienteService {
     public boolean delete(Long id) {
         return repository.findById(id)
                 .map(item ->{
+                    if(!item.getProjetos().isEmpty()) {
+                        item.getProjetos().forEach(projeto -> {
+                            projetoService.delete(projeto.getId());
+                        });
+                    }
                     repository.deleteById(id);
                     return true;
                 }).orElse(false);

@@ -68,7 +68,7 @@ public class AtividadeServiceImpl implements AtividadeService {
     }
 
     @Override
-    public List<Atividade> ListByProjeto(Long id) {
+    public List<Atividade> listByProjeto(Long id) {
         Optional<Projeto> projeto = projetoService.findById(id);
         if(!projeto.isEmpty() && projeto.isPresent()){
             return repository.findByProjeto(projeto.get());

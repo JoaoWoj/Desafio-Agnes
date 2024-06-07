@@ -35,7 +35,6 @@ public class Cliente {
     @JsonIgnore
     private Date dataCriacao;
 
-    @JsonIgnore
     @OneToMany(mappedBy = "cliente", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Projeto> projetos;
 

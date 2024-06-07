@@ -15,7 +15,7 @@ public interface AtividadeService {
     ResponseEntity<?> findByResponsavel(Long id);
     List<Atividade> listByResponsavel(Long id);
     ResponseEntity<?> findByProjeto(Long id);
-    List<Atividade> ListByProjeto(Long id);
+    List<Atividade> listByProjeto(Long id);
     ResponseEntity<?> create(Atividade atividade);
     Optional<Atividade> update(Long id, Atividade atividade);
     boolean delete(Long id);

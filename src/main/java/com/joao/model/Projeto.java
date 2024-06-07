@@ -39,7 +39,6 @@ public class Projeto {
     @JoinColumn(name = "cliente_id")
     private Cliente cliente;
 
-    @JsonIgnore
     @OneToMany(mappedBy = "projeto", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Atividade> atividades;
 

@@ -39,7 +39,6 @@ public class Funcionario {
     @JsonIgnore
     private Date dataCadastro;
 
-    @JsonIgnore
     @OneToMany(mappedBy = "responsavel", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Atividade> atividades;
 }

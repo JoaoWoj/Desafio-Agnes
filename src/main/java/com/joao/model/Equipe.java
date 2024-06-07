@@ -34,7 +34,6 @@ public class Equipe {
 
     private Date dataCriacao;
 
-    @JsonIgnore
     @OneToMany(mappedBy = "equipe", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Funcionario> funcionarios;
 

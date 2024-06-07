@@ -52,6 +52,10 @@ public class EquipeServiceImpl implements EquipeService {
     public ResponseEntity<?> delete(Long id) {
         return repository.findById(id)
                 .map(item ->{
+                    if(!item.getFuncionarios().isEmpty()){
+                        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                                .body("Não é possível excluir Equipe, enquanto existem funcionários cadastrados a ele!");
+                    }
                     repository.deleteById(id);
                     return ResponseEntity.noContent().build();
                 }).orElse(ResponseEntity.notFound().build());

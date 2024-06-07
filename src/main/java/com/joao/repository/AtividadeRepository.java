@@ -13,5 +13,6 @@ public interface AtividadeRepository extends JpaRepository<Atividade, Long> {
 
     List<Atividade> findByResponsavel(Funcionario responsavel);
     List<Atividade> findByProjeto(Projeto projeto);
+    void deleteByProjeto(Projeto projeto);
 
 }

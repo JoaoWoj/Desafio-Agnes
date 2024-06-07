@@ -34,7 +34,6 @@ public class Atividade {
     @Column(name = "data_inicio_atividade")
     private Date dataInicioAtividade;
 
-    @JsonIgnore
     @Column(name = "data_fim_atividade")
     private Date dataFimAtividade;
 
